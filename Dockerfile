@@ -9,11 +9,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Copy everything (package.json + source) before installing
-COPY . .
+# Copy package files first
+COPY package*.json ./
 
-# Install dependencies and explicitly rebuild the sqlite3 native module
-RUN npm install && npm rebuild sqlite3
+# Install dependencies (this will compile sqlite3)
+RUN npm install
+
+# Copy the rest of the application
+COPY . .
 
 EXPOSE 3000
 
