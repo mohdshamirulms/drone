@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Project Details — UAS</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div>
+        <h1 id="pd_title" style="margin:0">Project Details</h1>
+        <div class="note" id="pd_sub">Details & logs</div>
+      </div>
+      <div>
+        <button class="btn-ghost small" onclick="window.location.href='index.html'">← Back</button>
+      </div>
+    </div>
+
+    <!-- Project summary -->
+    <div class="card">
+      <div style="display:flex;gap:20px;flex-wrap:wrap">
+        <div style="flex:1">
+          <div class="note">Project</div>
+          <div id="pd_name" style="font-weight:800;font-size:18px">—</div>
+          <div id="pd_desc" class="note" style="margin-top:6px"></div>
+        </div>
+        <div style="width:220px">
+          <div class="note">Start</div>
+          <div id="pd_start" style="font-weight:700"></div>
+          <div class="note" style="margin-top:10px">End</div>
+          <div id="pd_end" style="font-weight:700"></div>
+        </div>
+        <div style="width:220px">
+          <div class="note">Client</div>
+          <div id="pd_client" style="font-weight:700"></div>
+          <div class="note" style="margin-top:10px">Location</div>
+          <div id="pd_location" style="font-weight:700"></div>
+        </div>
+        <div style="width:160px">
+          <div class="note">Total Flight Hrs</div>
+          <div id="pd_total_flight" style="font-weight:800">0:00</div>
+          <div class="note" style="margin-top:10px">Total Mandays</div>
+          <div id="pd_total_mandays" style="font-weight:800">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flight log form -->
+    <div class="card">
+      <h2 style="margin:0 0 12px 0">Add / Edit Flight Log</h2>
+      <div class="form-row">
+        <div class="field">
+          <label>Flight ID</label>
+          <input id="f_flightId" type="text" placeholder="F001">
+        </div>
+        <div class="field">
+          <label>Pilot (saved for reuse)</label>
+          <input list="pilotList" id="f_pilot" placeholder="Pilot name">
+          <datalist id="pilotList"></datalist>
+        </div>
+        <div class="field">
+          <label>Drone Type</label>
+          <input list="droneList" id="f_drone" placeholder="Drone model">
+          <datalist id="droneList"></datalist>
+        </div>
+        <div class="field">
+          <label>Serial # (optional)</label>
+          <input list="serialList" id="f_serial" placeholder="Serial">
+          <datalist id="serialList"></datalist>
+        </div>
+        <div class="field">
+          <label>Battery ID</label>
+          <input id="f_battery" type="text" placeholder="BATT-01">
+        </div>
+      </div>
+
+      <div class="form-row" style="margin-top:12px">
+        <div class="field">
+          <label>Take-off (date & time)</label>
+          <input id="f_takeoff" type="datetime-local">
+        </div>
+        <div class="field">
+          <label>Landing (date & time)</label>
+          <input id="f_landing" type="datetime-local">
+        </div>
+        <div class="field">
+          <label>Duration (HH:MM)</label>
+          <input id="f_duration" type="text" readonly placeholder="0:00">
+        </div>
+        <div class="field" style="flex:2">
+          <label>Remarks</label>
+          <input id="f_remarks" type="text" placeholder="Optional remarks">
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:flex-end">
+          <input id="f_id" type="hidden">
+          <button id="btnSaveFlight" class="btn-primary">Save Flight</button>
+          <button id="btnClearFlight" class="btn-ghost" style="margin-top:8px">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flight logs -->
+    <div class="card table-wrap">
+      <h2 style="margin:0 0 12px 0">Flight Logs</h2>
+      <table id="flight_table">
+        <thead>
+          <tr>
+            <th>Flight ID</th>
+            <th>Pilot</th>
+            <th>Drone</th>
+            <th>Serial</th>
+            <th>Battery ID</th>
+            <th>Takeoff</th>
+            <th>Landing</th>
+            <th>Duration</th>
+            <th>Remarks</th>
+            <th style="text-align:right">Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Crew roster -->
+    <div class="card">
+      <h2 style="margin:0 0 12px 0">Crew Roster (Mandays)</h2>
+      <div class="form-row">
+        <div class="field">
+          <label>Name</label>
+          <input id="c_name" type="text" placeholder="Crew name">
+        </div>
+        <div class="field">
+          <label>Role</label>
+          <input id="c_role" type="text" placeholder="Role (Pilot/Spotter)">
+        </div>
+        <div class="field">
+          <label>Date In</label>
+          <input id="c_datein" type="date">
+        </div>
+        <div class="field">
+          <label>Date Out</label>
+          <input id="c_dateout" type="date">
+        </div>
+        <div style="display:flex;align-items:flex-end">
+          <button id="btnAddCrew" class="btn-primary">Add Crew</button>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:12px">
+        <table id="crew_table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Date In</th>
+              <th>Date Out</th>
+              <th>Mandays</th>
+              <th style="text-align:right">Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

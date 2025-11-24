@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>UAS Project Dashboard (Local)</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-left">
+        <h1>UAS Project Dashboard</h1>
+        <div class="header-sub">Apple-clean UI • Light blue accents • LocalStorage (droneProjects_v1)</div>
+      </div>
+      <div>
+        <button id="btnExport" class="btn-ghost small">Export JSON</button>
+        <button id="btnImport" class="btn-ghost small">Import JSON</button>
+      </div>
+    </div>
+
+    <!-- Add / Edit Project -->
+    <div class="card">
+      <h2 style="margin:0 0 12px 0">Add / Edit Project</h2>
+      <div class="form-row">
+        <div class="field">
+          <label>Project Name</label>
+          <input id="proj_name" type="text" placeholder="e.g. Survey — Lot 123">
+        </div>
+        <div class="field">
+          <label>Client</label>
+          <input id="proj_client" type="text" placeholder="Client name">
+        </div>
+        <div class="field">
+          <label>Location</label>
+          <input id="proj_location" type="text" placeholder="Location">
+        </div>
+        <div class="field">
+          <label>Start Date</label>
+          <input id="proj_start" type="date">
+        </div>
+        <div class="field">
+          <label>End Date</label>
+          <input id="proj_end" type="date">
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-top:12px;align-items:flex-start">
+        <div style="flex:1">
+          <label>Description</label>
+          <textarea id="proj_desc" placeholder="Short description (optional)"></textarea>
+        </div>
+        <div style="width:220px;text-align:right">
+          <input type="hidden" id="proj_id">
+          <button id="btnSaveProject" class="btn-primary">Save Project</button>
+          <button id="btnClearProject" class="btn-ghost" style="margin-top:8px">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick summary -->
+    <div class="card summary">
+      <div class="box">
+        <div class="note">Projects</div>
+        <div id="summary_projects" style="font-size:18px;font-weight:800">0</div>
+      </div>
+      <div class="box">
+        <div class="note">Total Flight Hours</div>
+        <div id="summary_flight" style="font-size:18px;font-weight:800">0:00</div>
+      </div>
+      <div class="box">
+        <div class="note">Total Mandays</div>
+        <div id="summary_mandays" style="font-size:18px;font-weight:800">0</div>
+      </div>
+      <div class="box">
+        <div class="note">Total Crew</div>
+        <div id="summary_crew" style="font-size:18px;font-weight:800">0</div>
+      </div>
+    </div>
+
+    <!-- Projects table -->
+    <div class="card table-wrap">
+      <h2 style="margin:0 0 12px 0">Projects</h2>
+      <table id="projects_table" aria-label="Projects">
+        <thead>
+          <tr>
+            <th>Project</th>
+            <th>Client</th>
+            <th>Location</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Flight Hrs</th>
+            <th>Mandays</th>
+            <th>Crew</th>
+            <th style="text-align:right">Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
