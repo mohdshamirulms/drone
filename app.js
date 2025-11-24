@@ -287,6 +287,7 @@ async function initProjectDetails() {
   const btnSaveFlight = document.getElementById('btnSaveFlight');
   const btnClearFlight = document.getElementById('btnClearFlight');
   const btnSortFlights = document.getElementById('btnSortFlights');
+  const btnExportFlights = document.getElementById('btnExportFlights');
   const flight_tbody = document.querySelector('#flight_table tbody');
 
   // crew form
@@ -487,6 +488,48 @@ async function initProjectDetails() {
     sortNewestFirst = !sortNewestFirst;
     btnSortFlights.textContent = sortNewestFirst ? 'Sort: Newest First ↓' : 'Sort: Oldest First ↑';
     renderFlights();
+  });
+
+  // Export flights to CSV
+  btnExportFlights.addEventListener('click', () => {
+    const p = getProject();
+    if (!p || !p.flights || p.flights.length === 0) {
+      alert('No flight logs to export');
+      return;
+    }
+
+    // CSV headers
+    const headers = ['Flight ID', 'Pilot', 'Drone', 'Serial', 'Battery ID', 'Takeoff', 'Landing', 'Duration (HH:MM)', 'Remarks'];
+
+    // CSV rows
+    const rows = p.flights.map(f => [
+      f.flightId || '',
+      f.pilot || '',
+      f.drone || '',
+      f.serial || '',
+      f.battery || '',
+      formatDateTime12(f.takeoff || ''),
+      formatDateTime12(f.landing || ''),
+      minutesToHHMM(Number(f.durationMins || 0)),
+      f.remarks || ''
+    ]);
+
+    // Convert to CSV string
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    // Create download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${p.name.replace(/[^a-z0-9]/gi, '_')}_flight_logs.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   });
 
   btnAddCrew.addEventListener('click', async () => {
