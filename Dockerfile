@@ -1,21 +1,14 @@
-FROM node:18-bullseye-slim
-
-# Install SQLite dev headers, C-toolchain and Python (needed by node-gyp)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libsqlite3-dev \
-    build-essential \
-    python3 \
-    && rm -rf /var/lib/apt/lists/*
+FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy package files first
+# Copy package files
 COPY package*.json ./
 
-# Install dependencies (this will compile sqlite3)
+# Install dependencies
 RUN npm install
 
-# Copy the rest of the application
+# Copy application files
 COPY . .
 
 EXPOSE 3000

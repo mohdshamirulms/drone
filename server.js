@@ -1,84 +1,44 @@
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
+const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const fs = require('fs');
 const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-// Ensure data directory exists
-const DATA_DIR = path.join(__dirname, 'data');
-if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR);
-}
-
-const DB_PATH = path.join(DATA_DIR, 'database.sqlite');
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/uas_projects';
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '.')));
 
-// Initialize SQLite Database
-const db = new sqlite3.Database(DB_PATH, (err) => {
-    if (err) {
-        console.error('Error opening database:', err.message);
-    } else {
-        console.log('Connected to SQLite database at ' + DB_PATH);
-        initDB();
-    }
-});
+// Connect to MongoDB
+mongoose.connect(MONGO_URI)
+    .then(() => console.log('Connected to MongoDB'))
+    .catch(err => console.error('MongoDB connection error:', err));
 
-function initDB() {
-    db.run(`CREATE TABLE IF NOT EXISTS projects (
-    id TEXT PRIMARY KEY,
-    name TEXT,
-    client TEXT,
-    location TEXT,
-    startDate TEXT,
-    endDate TEXT,
-    description TEXT,
-    flights TEXT, -- Stored as JSON string
-    crew TEXT     -- Stored as JSON string
-  )`, (err) => {
-        if (err) console.error('Error creating table:', err.message);
-    });
-}
+// Define Project Schema (flexible to match existing data structure)
+const ProjectSchema = new mongoose.Schema({
+    id: { type: String, required: true, unique: true },
+    name: String,
+    client: String,
+    location: String,
+    startDate: String,
+    endDate: String,
+    description: String,
+    flights: [mongoose.Schema.Types.Mixed],
+    crew: [mongoose.Schema.Types.Mixed]
+}, { strict: false });
 
-// Helper to wrap db.all in Promise
-function dbAll(sql, params = []) {
-    return new Promise((resolve, reject) => {
-        db.all(sql, params, (err, rows) => {
-            if (err) reject(err);
-            else resolve(rows);
-        });
-    });
-}
-
-// Helper to wrap db.run in Promise
-function dbRun(sql, params = []) {
-    return new Promise((resolve, reject) => {
-        db.run(sql, params, function (err) {
-            if (err) reject(err);
-            else resolve(this);
-        });
-    });
-}
+const Project = mongoose.model('Project', ProjectSchema);
 
 // API Routes
 
 // GET all projects
 app.get('/api/projects', async (req, res) => {
     try {
-        const rows = await dbAll("SELECT * FROM projects");
-        // Parse JSON strings back to objects
-        const projects = rows.map(p => ({
-            ...p,
-            flights: p.flights ? JSON.parse(p.flights) : [],
-            crew: p.crew ? JSON.parse(p.crew) : []
-        }));
+        const projects = await Project.find();
         res.json(projects);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -88,28 +48,16 @@ app.get('/api/projects', async (req, res) => {
 // POST (Create/Update)
 app.post('/api/projects', async (req, res) => {
     try {
-        const p = req.body;
-        const flightsJson = JSON.stringify(p.flights || []);
-        const crewJson = JSON.stringify(p.crew || []);
+        const projectData = req.body;
 
-        // Check if exists
-        const existing = await dbAll("SELECT id FROM projects WHERE id = ?", [p.id]);
+        // Try to update existing, or create new
+        const result = await Project.findOneAndUpdate(
+            { id: projectData.id },
+            projectData,
+            { upsert: true, new: true }
+        );
 
-        if (existing.length > 0) {
-            // Update
-            await dbRun(
-                `UPDATE projects SET name=?, client=?, location=?, startDate=?, endDate=?, description=?, flights=?, crew=? WHERE id=?`,
-                [p.name, p.client, p.location, p.startDate, p.endDate, p.description, flightsJson, crewJson, p.id]
-            );
-            res.json({ success: true, message: 'Updated' });
-        } else {
-            // Create
-            await dbRun(
-                `INSERT INTO projects (id, name, client, location, startDate, endDate, description, flights, crew) VALUES (?,?,?,?,?,?,?,?,?)`,
-                [p.id, p.name, p.client, p.location, p.startDate, p.endDate, p.description, flightsJson, crewJson]
-            );
-            res.json({ success: true, message: 'Created' });
-        }
+        res.json({ success: true, project: result });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -118,7 +66,7 @@ app.post('/api/projects', async (req, res) => {
 // DELETE project
 app.delete('/api/projects/:id', async (req, res) => {
     try {
-        await dbRun("DELETE FROM projects WHERE id = ?", [req.params.id]);
+        await Project.findOneAndDelete({ id: req.params.id });
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -126,6 +74,6 @@ app.delete('/api/projects/:id', async (req, res) => {
 });
 
 // Start Server
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://0.0.0.0:${PORT}`);
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
 });
