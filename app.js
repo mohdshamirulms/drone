@@ -260,6 +260,9 @@ async function initProjectDetails() {
   const projectId = params.get('projectId');
   if (!projectId) { alert('Project ID missing'); window.location.href = 'index.html'; return; }
 
+  // Sort state for flights (true = newest first, false = oldest first)
+  let sortNewestFirst = true;
+
   // DOM elements
   const pd_name = document.getElementById('pd_name');
   const pd_desc = document.getElementById('pd_desc');
@@ -283,6 +286,7 @@ async function initProjectDetails() {
   const f_id = document.getElementById('f_id');
   const btnSaveFlight = document.getElementById('btnSaveFlight');
   const btnClearFlight = document.getElementById('btnClearFlight');
+  const btnSortFlights = document.getElementById('btnSortFlights');
   const flight_tbody = document.querySelector('#flight_table tbody');
 
   // crew form
@@ -343,7 +347,15 @@ async function initProjectDetails() {
   function renderFlights() {
     const p = getProject();
     flight_tbody.innerHTML = '';
-    (p.flights || []).forEach(f => {
+
+    // Sort flights by takeoff date
+    let flights = [...(p.flights || [])];
+    flights.sort((a, b) => {
+      const dateA = new Date(a.takeoff || 0);
+      const dateB = new Date(b.takeoff || 0);
+      return sortNewestFirst ? dateB - dateA : dateA - dateB;
+    });
+    flights.forEach(f => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${escapeHtml(f.flightId || '')}</td>
@@ -469,6 +481,13 @@ async function initProjectDetails() {
       });
     });
   }
+
+  // Sort flights button
+  btnSortFlights.addEventListener('click', () => {
+    sortNewestFirst = !sortNewestFirst;
+    btnSortFlights.textContent = sortNewestFirst ? 'Sort: Newest First ↓' : 'Sort: Oldest First ↑';
+    renderFlights();
+  });
 
   btnAddCrew.addEventListener('click', async () => {
     const p = getProject();

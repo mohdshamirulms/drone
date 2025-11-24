@@ -1,11 +1,13 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Project Details — UAS</title>
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
   <div class="container">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -103,7 +105,10 @@
 
     <!-- Flight logs -->
     <div class="card table-wrap">
-      <h2 style="margin:0 0 12px 0">Flight Logs</h2>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h2 style="margin:0">Flight Logs</h2>
+        <button id="btnSortFlights" class="btn-ghost small">Sort: Newest First ↓</button>
+      </div>
       <table id="flight_table">
         <thead>
           <tr>
@@ -169,4 +174,5 @@
 
   <script src="app.js"></script>
 </body>
+
 </html>
